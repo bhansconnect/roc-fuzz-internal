@@ -1,0 +1,6 @@
+/target
+/out
+*.ll
+*.bc
+*.o
+*.a

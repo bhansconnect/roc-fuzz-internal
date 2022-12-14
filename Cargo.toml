@@ -1,0 +1,18 @@
+[package]
+name = "roc-fuzz"
+version = "0.0.1"
+authors = ["The Roc Contributors"]
+license = "UPL-1.0"
+edition = "2021"
+links = "rocfuzz"
+
+[[bin]]
+name = "rocfuzz"
+path = "src/main.rs"
+
+[dependencies]
+roc_std = { path = "../roc/crates/roc_std" }
+libc = "0.2"
+afl = "*"
+
+[workspace]
