@@ -85,6 +85,9 @@ pub fn call_roc(data: &[u8]) {
     let mut data = RocList::from_slice(data);
     let mut out = 0;
     unsafe { roc_main(&mut out, &mut data) };
+
+    // Roc takes ownership of data and will free it.
+    std::mem::forget(data);
 }
 
 fn main() {
