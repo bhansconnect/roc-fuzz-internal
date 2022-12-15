@@ -5,5 +5,9 @@ app "libroc-fuzz"
 
 main = \data ->
     when Str.fromUtf8 data is
-        Ok _ -> 0
+        Ok str ->
+            if Str.toUtf8 str != data then
+                crash "Data is not the same after converting to and from Str"
+            else
+                0
         Err _ -> 1
