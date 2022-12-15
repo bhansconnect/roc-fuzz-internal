@@ -1,9 +1,9 @@
 fn main() {
     #[cfg(not(windows))]
-    println!("cargo:rustc-link-lib=static=rocfuzz");
+    println!("cargo:rustc-link-lib=static=roc-fuzz");
 
     #[cfg(windows)]
-    println!("cargo:rustc-link-lib=static=librocfuzz");
+    println!("cargo:rustc-link-lib=static=libroc-fuzz");
 
-    println!("cargo:rustc-link-search=.");
+    println!("cargo:rustc-link-search=./fuzz_targets");
 }

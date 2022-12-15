@@ -7,7 +7,7 @@ edition = "2021"
 links = "rocfuzz"
 
 [[bin]]
-name = "rocfuzz"
+name = "roc-fuzz"
 path = "src/main.rs"
 
 [dependencies]
