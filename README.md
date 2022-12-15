@@ -52,9 +52,9 @@ cargo afl fuzz -i in -o out target/release/roc-fuzz
 More docs specific to `afl` can be found at [aflplus.plus](https://aflplus.plus/).
 If you plan to do a longer term fuzz, I highly advise looking at the docs on [using multiple cores](https://aflplus.plus/docs/fuzzing_in_depth/#c-using-multiple-cores).
 
-Often times I notice that `afl` only gets to about `15%` coverage.
-I do not think this is a bug. I think that there is just a lot of code that never gets run.
-This is capable of finding bugs and generally increasing coverage, so I am not too woried about it.
+Often times I notice that `afl` only gets to about `15%` map density.
+This seems pretty normal for smaller applications. Even just using url parsing in rust leads to only 20%.
+Generally speaking the simpler the target, the less map density.
 
 The `in/` directory contains the seeds for fuzzing. Currently it is a simple short seed.
 The seeds can be tailored to specific functions in order to help fuzzing go faster.
