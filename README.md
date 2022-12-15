@@ -59,9 +59,6 @@ This is capable of finding bugs and generally increasing coverage, so I am not t
 The `in/` directory contains the seeds for fuzzing. Currently it is a simple short seed.
 The seeds can be tailored to specific functions in order to help fuzzing go faster.
 
-Sometimes, rust seems to not rebuild even though the static library has been rebuilt.
-Simply `cargo clean` if you have problems with that.
-
 If you switch from fuzzing one applications to another remember to clear the `out/` directory.
 
 Crashes will be found in `out/default/crashes/`.

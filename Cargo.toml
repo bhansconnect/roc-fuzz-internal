@@ -13,6 +13,9 @@ path = "src/main.rs"
 [dependencies]
 roc_std = { path = "../roc/crates/roc_std" }
 libc = "0.2"
-afl = "*"
+afl = "0.12"
+
+[build-dependencies]
+glob = "0.3"
 
 [workspace]
