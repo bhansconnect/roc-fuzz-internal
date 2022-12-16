@@ -12,9 +12,8 @@ If using any sanitizer other than the fuzzer, it also requires nightly rust to e
 
 ## How to use
 
-Currently, this requires a special build of the compiler on the `enable-fuzzing` branch.
-Shortly, this should get merged into main, but still requires a compiling from source and feature flag to enable.
-Start by picking by building roc:
+This requires a special build of the compiler with the `sanitizers` feature flag.
+Start by [building roc from source](https://github.com/roc-lang/roc/blob/main/BUILDING_FROM_SOURCE.md):
 ```sh
 cargo build --features sanitizers --bin roc
 ```
