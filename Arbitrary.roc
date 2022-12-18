@@ -1,5 +1,5 @@
 interface Arbitrary
-    exposes []
+    exposes [new, len, isEmpty, arbitraryByteSize, u64InInclusiveRange, bytes, ratio]
     imports []
 
 Unstructured := List U8
@@ -47,26 +47,26 @@ arbitraryByteSize = \@Unstructured data ->
         # Note: We cast to u64 so we don't overflow when checking std::u32::MAX + 4 on 32-bit archs.
         dataLen = List.len data
         if Num.toU64 dataLen <= 0xFF + 1 then
-            bytes = 1
-            maxLen = dataLen - bytes
+            numBytes = 1
+            maxLen = dataLen - numBytes
             {before, others} = List.split data maxLen
             {value} = u64InInclusiveRange (@Unstructured others) 0 (Num.toU64 maxLen)
             {value: Num.toNat value, state: @Unstructured before}
         else if Num.toU64 dataLen <= 0xFFFF + 1 then
-            bytes = 2
-            maxLen = dataLen - bytes
+            numBytes = 2
+            maxLen = dataLen - numBytes
             {before, others} = List.split data maxLen
             {value} = u64InInclusiveRange (@Unstructured others) 0 (Num.toU64 maxLen)
             {value: Num.toNat value, state: @Unstructured before}
         else if Num.toU64 dataLen <= 0xFFFF_FFFF + 1 then
-            bytes = 4
-            maxLen = dataLen - bytes
+            numBytes = 4
+            maxLen = dataLen - numBytes
             {before, others} = List.split data maxLen
             {value} = u64InInclusiveRange (@Unstructured others) 0 (Num.toU64 maxLen)
             {value: Num.toNat value, state: @Unstructured before}
         else
-            bytes = 8
-            maxLen = dataLen - bytes
+            numBytes = 8
+            maxLen = dataLen - numBytes
             {before, others} = List.split data maxLen
             {value} = u64InInclusiveRange (@Unstructured others) 0 (Num.toU64 maxLen)
             {value: Num.toNat value, state: @Unstructured before}
@@ -117,12 +117,12 @@ expect
     value == 0x1234
 
 u64InInclusiveRange : Unstructured, U64, U64 -> {value: U64, state: Unstructured}
-u64InInclusiveRange = \@Unstructured bytes, start, end ->
+u64InInclusiveRange = \@Unstructured data, start, end ->
     if start > end then
         crash "intInInclusiveRange requires a non-empty range"
     else if start == end then
         # Don't waste entropy when there is only one option
-        {value: start, state: @Unstructured bytes}
+        {value: start, state: @Unstructured data}
     else
         delta = Num.subWrap end start
         genInt = \b, current, bytesConsumed ->
@@ -138,7 +138,7 @@ u64InInclusiveRange = \@Unstructured bytes, start, end ->
                         {value: next, state: b}
                 Err _ ->
                     {value: current, state: b}
-        int = genInt bytes 0 0
+        int = genInt data 0 0
         offset =
             when Num.addChecked delta 1 is
                 Ok y ->
@@ -156,3 +156,20 @@ expect
     |> .value
     |> Bool.isEq 0
     
+bytes : Unstructured, Nat -> Result {value: List U8, state: Unstructured} [NotEnoughData Nat]
+bytes = \@Unstructured data, requestedLen ->
+    if List.len data>= requestedLen then
+        {before, others} = List.split data requestedLen
+        Ok {value: before, state: @Unstructured others}
+    else
+        Err (NotEnoughData (List.len data))
+
+ratio : Unstructured, U64, U64 -> { value: Bool, state: Unstructured }
+ratio = \u, numerator, denominator ->
+    if numerator > denominator then
+        crash "numerator must be less than or equal to the denominator for ratio"
+    else
+        {value, state} = u64InInclusiveRange u 1 denominator
+        {value: value <= numerator, state}
+        
+
