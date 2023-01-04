@@ -89,9 +89,3 @@ pub fn call_roc(data: &[u8]) {
     // Roc takes ownership of data and will free it.
     std::mem::forget(data);
 }
-
-fn main() {
-    afl::fuzz!(|data: &[u8]| {
-        call_roc(&data);
-    });
-}
