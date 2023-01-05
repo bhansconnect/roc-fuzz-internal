@@ -158,7 +158,7 @@ expect
     
 bytes : Unstructured, Nat -> Result {value: List U8, state: Unstructured} [NotEnoughData Nat]
 bytes = \@Unstructured data, requestedLen ->
-    if List.len data>= requestedLen then
+    if List.len data >= requestedLen then
         {before, others} = List.split data requestedLen
         Ok {value: before, state: @Unstructured others}
     else
