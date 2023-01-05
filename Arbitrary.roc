@@ -275,6 +275,8 @@ ratio = \u, numerator, denominator ->
         crash "numerator must be less than or equal to the denominator for ratio"
     else
         {value, state} = u64InInclusiveRange u 1 denominator
-        {value: value <= numerator, state}
+        # The next condition is weird to make it so a default value of 0 will be false.
+        # instead of <= numerator, we have > denominator - numerator.
+        {value: value > denominator - numerator, state}
         
 
