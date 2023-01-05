@@ -1,25 +1,19 @@
 app "libroc-fuzz"
     packages { pf: "../platform.roc" }
-    imports [pf.Arbitrary.{new, arbitraryByteSize, bytes, ratio}]
+    imports [pf.Arbitrary.{new, arbitraryListU8, ratio}]
     provides [main] to pf
 
 main = \data ->
     ar1 = new data
 
-    {state: ar2, value: len1}= arbitraryByteSize ar1
-    {state: ar3, value: bytes1} =
-        when bytes ar2 len1 is
-            Ok x -> x
-            Err _ -> crash "This should be impossible since we grabbed the size directly"
+    {state: ar2, value: bytes1}= arbitraryListU8 ar1
+    len1 = List.len bytes1
 
-    {state: ar4, value: len2}= arbitraryByteSize ar3
-    {state: ar5, value: bytes2} =
-        when bytes ar4 len2 is
-            Ok x -> x
-            Err _ -> crash "This should be impossible since we grabbed the size directly"
+    {state: ar3, value: bytes2}= arbitraryListU8 ar2
+    len2 = List.len bytes2
 
-    {state: ar6, value: reference1} = ratio ar5 1 2
-    {value: reference2} = ratio ar6 1 2
+    {state: ar4, value: reference1} = ratio ar3 1 2
+    {value: reference2} = ratio ar4 1 2
 
     tmp1 =
         if reference1 then
@@ -34,7 +28,7 @@ main = \data ->
             []
 
     out = List.concat bytes1 bytes2
-    if List.len out != len1 +len2 then
+    if List.len out != len1 + len2 then
         crash "output list does not have the size of the two base list joined"
     else
         # This is needed to keep the references to tmp alive

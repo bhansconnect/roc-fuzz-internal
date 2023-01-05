@@ -1,5 +1,5 @@
 interface Arbitrary
-    exposes [new, len, isEmpty, arbitraryByteSize, u64InInclusiveRange, bytes, ratio]
+    exposes [new, len, isEmpty, arbitraryByteSize, u64InInclusiveRange, bytes, ratio, arbitraryStr, arbitraryListU8]
     imports []
 
 Unstructured := List U8
@@ -32,6 +32,105 @@ expect
 
 # Requires size hints
 # arbitraryLen : Unstructured -> Result usize
+
+arbitraryStr : Unstructured -> {value: Str, state: Unstructured}
+arbitraryStr = \u1 ->
+    {value: size, state: u2} = arbitraryByteSize u1
+    {value: data, state: u3} =
+        when bytes u2 size is
+            Ok x -> x
+            Err _ -> crash "byte range from arbitrary size must fit in data"
+
+    {value: rawStr, state: u4} =
+        when Str.fromUtf8 data is
+            Ok value ->
+                {value, state: u3}
+            Err (BadUtf8 _ index) ->
+                # Even though this failed, we can stil parse the utf8 up to this index.
+                # we didn't use all bytes, so reclaim some of them.
+                {value: altData, state: altU3} =
+                    when bytes u2 index is
+                        Ok x -> x
+                        Err _ -> crash "byte range from arbitrary size must fit in data"
+                when Str.fromUtf8 altData is
+                    Ok value ->
+                        {value, state: altU3}
+                    Err _ -> crash "This subset of the string should be valid for conversion to utf8"
+
+    # Allow the string to reserve an extra capacity up to the next power of 2 after the size.
+    # For example, if size is 14, it can reserve upto a size of 32 (16 * 2).
+    maxCap = 2 * (nextPowerOf2 (Str.countUtf8Bytes rawStr))
+    {value: cap, state: u5} = u64InInclusiveRange u4 0 maxCap
+
+    {
+        value:
+            if (Num.toNat cap) > Str.countUtf8Bytes rawStr then
+                Str.reserve rawStr ((Num.toNat cap) - Str.countUtf8Bytes rawStr)
+            else
+                rawStr,
+        state: u5,
+    }
+
+nextPowerOf2 = \n ->
+    x = nextPowerOf2Helper n
+    Num.shiftLeftBy 1 x
+
+nextPowerOf2Helper = \n ->
+    if n > 0 then
+        1 + (nextPowerOf2Helper (Num.shiftRightZfBy n 1))
+    else
+        1
+
+expect
+    {value} =
+        new [49, 50, 51, 52, 9]
+        |> arbitraryStr
+    value == "1234"
+
+expect
+    {value} =
+        new [49, 50, 51, 52, 8]
+        |> arbitraryStr
+    value == "123"
+
+expect
+    {value} =
+        new [49, 50, 51, 255, 9]
+        |> arbitraryStr
+
+    value == "123"
+
+expect
+    remaining =
+        new [49, 50, 51, 255, 9]
+        |> arbitraryStr
+        |> .state
+        |> \@Unstructured data -> data
+
+    remaining == [255]
+
+arbitraryListU8 : Unstructured -> {value: List U8, state: Unstructured}
+arbitraryListU8 = \u1 ->
+    {value: size, state: u2} = arbitraryByteSize u1
+    {value: rawData, state: u3} =
+        when bytes u2 size is
+            Ok x -> x
+            Err _ -> crash "byte range from arbitrary size must fit in data"
+
+    # Allow the list to reserve an extra capacity up to the next power of 2 after the size.
+    # For example, if size is 14, it can reserve upto a size of 32 (16 * 2).
+    maxCap = 2 * (nextPowerOf2 (List.len rawData))
+    {value: cap, state: u4} = u64InInclusiveRange u3 0 maxCap
+
+    {
+        value:
+            if (Num.toNat cap) > List.len rawData then
+                List.reserve rawData ((Num.toNat cap) - List.len rawData)
+            else
+                rawData,
+        state: u4,
+    }
+
 
 arbitraryByteSize : Unstructured -> {value: Nat, state: Unstructured}
 arbitraryByteSize = \@Unstructured data ->
@@ -135,7 +234,7 @@ u64InInclusiveRange = \@Unstructured data, start, end ->
                         genInt (List.dropFirst b) next nextBytesConsumed
                     else
                         # consumed enough bytes to fill delta
-                        {value: next, state: b}
+                        {value: next, state: (List.dropFirst b)}
                 Err _ ->
                     {value: current, state: b}
         int = genInt data 0 0
