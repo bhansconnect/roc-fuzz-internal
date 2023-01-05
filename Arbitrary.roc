@@ -59,7 +59,13 @@ arbitraryStr = \u1 ->
 
     # Allow the string to reserve an extra capacity up to the next power of 2 after the size.
     # For example, if size is 14, it can reserve upto a size of 32 (16 * 2).
-    maxCap = 2 * (nextPowerOf2 (Str.countUtf8Bytes rawStr))
+    maxCap =
+        tmp = 2 * (nextPowerOf2 (Str.countUtf8Bytes rawStr))
+        # Ensure that we can always allocate past small string size of 24.
+        if tmp < 32 then
+            32
+        else
+            tmp
     {value: cap, state: u5} = u64InInclusiveRange u4 0 maxCap
 
     {
