@@ -15,6 +15,9 @@ then
 	rm -rf fuzz/artifacts fuzz/corpus
 fi
 
+# Make sure this exits if anything fails.
+set -e
+
 ROC_SANITIZERS="address,cargo-fuzz" roc build --no-link $ROCFLAG roc_targets/$TARGET
 
 ar rcs roc_targets/libroc-fuzz.a roc_targets/libroc-fuzz.o
