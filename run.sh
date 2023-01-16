@@ -3,7 +3,7 @@
 cd $(dirname $0)
 
 TARGET=$(cd roc_targets && ls *.roc | gum filter)
-OPTIMIZE=$?
+
 if gum confirm --default="No" "Optimized build?"
 then
 	ROCFLAG=--optimize
