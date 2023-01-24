@@ -4,7 +4,7 @@ app "libroc-fuzz"
     provides [main] to pf
 
 main = \data ->
-    set = List.walk data Set.empty Set.insert
+    set = List.walk data (Set.empty {}) Set.insert
     out =
         List.walk data 0 \x, elem ->
             if Set.contains set elem then

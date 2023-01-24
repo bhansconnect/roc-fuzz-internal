@@ -25,7 +25,7 @@ main = \data ->
             ""
 
     splits = Str.split str1 str2
-	rejoined = Str.joinWith splits str2
+    rejoined = Str.joinWith splits str2
     if rejoined != str1 then
         crash "the rejoined string does not equal the original string"
     else
