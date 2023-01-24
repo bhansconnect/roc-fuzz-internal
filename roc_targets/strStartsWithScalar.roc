@@ -23,4 +23,4 @@ main = \data ->
     # This is needed to keep the references to tmp alive
     Str.countUtf8Bytes tmp1
     |> Num.toU8
-    |> Num.add (if out then 1 else 0) 
+    |> Num.addWrap (if out then 1 else 0)

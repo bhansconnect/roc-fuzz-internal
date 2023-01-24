@@ -27,10 +27,10 @@ main = \data ->
     out = Str.endsWith str1 str2
     if out then
         Str.countUtf8Bytes tmp2
-        |> Num.add (Str.countUtf8Bytes tmp1)
+        |> Num.addWrap (Str.countUtf8Bytes tmp1)
         |> Num.toU8
     else
         # This is needed to keep the references to tmp alive
         Str.countUtf8Bytes tmp1
-        |> Num.add (Str.countUtf8Bytes tmp2)
+        |> Num.addWrap (Str.countUtf8Bytes tmp2)
         |> Num.toU8

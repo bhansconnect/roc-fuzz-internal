@@ -19,7 +19,7 @@ main = \data ->
     if out == "" then
         # This is needed to keep the references to tmp alive
         Str.countUtf8Bytes tmp1
-        |> Num.add 1
+        |> Num.addWrap 1
         |> Num.toU8
     else
         # This is needed to keep the references to tmp alive
