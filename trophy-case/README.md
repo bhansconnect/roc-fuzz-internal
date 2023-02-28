@@ -9,3 +9,4 @@ Bugs found in Roc via fuzzing:
  - Third memory leak in List.concat [roc#4952](https://github.com/roc-lang/roc/issues/4952)
  - Bad results from Str.split with overlapping strings [roc#4953](https://github.com/roc-lang/roc/issues/4953)
  - Stack overflow when passing empty string to Str.toI128 and Str.toU128 [roc#4954](https://github.com/roc-lang/roc/issues/4954)
+ - Memory leak in Str.trim [roc#5075](https://github.com/roc-lang/roc/issues/5075)
