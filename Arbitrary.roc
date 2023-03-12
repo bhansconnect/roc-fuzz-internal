@@ -117,24 +117,30 @@ expect
 
 arbitraryListU8 : Unstructured -> {value: List U8, state: Unstructured}
 arbitraryListU8 = \u1 ->
-    {value: size, state: u2} = arbitraryByteSize u1
-    {value: rawData, state: u3} =
-        when bytes u2 size is
+    # With a 50% prob make this a seamless slice.
+    # Do this by droping the first element from the list.
+    # Roc will the return a slice of the original list.
+    {value: seamlessSlice, state: u2} = ratio u1 1 2
+
+    {value: size, state: u3} = arbitraryByteSize u2
+    {value: rawData, state: u4} =
+        when bytes u3 size is
             Ok x -> x
             Err _ -> crash "byte range from arbitrary size must fit in data"
 
     # Allow the list to reserve an extra capacity up to the next power of 2 after the size.
     # For example, if size is 14, it can reserve upto a size of 32 (16 * 2).
     maxCap = 2 * (nextPowerOf2 (List.len rawData))
-    {value: cap, state: u4} = u64InInclusiveRange u3 0 maxCap
+    {value: cap, state: u5} = u64InInclusiveRange u4 0 maxCap
 
     {
         value:
-            if (Num.toNat cap) > List.len rawData then
+            (if (Num.toNat cap) > List.len rawData then
                 List.reserve rawData ((Num.toNat cap) - List.len rawData)
             else
-                rawData,
-        state: u4,
+                rawData)
+            |> \out -> if seamlessSlice then List.dropFirst out else out,
+        state: u5,
     }
 
 
@@ -231,16 +237,18 @@ u64InInclusiveRange = \@Unstructured data, start, end ->
     else
         delta = Num.subWrap end start
         genInt = \b, current, bytesConsumed ->
-            when List.first b is
+            # Take the byte from the end of the data.
+            # This helps fuzzers more efficiently explore the input space.
+            when List.last b is
                 Ok x ->
                     next = Num.bitwiseOr (Num.shiftLeftBy current 8) (Num.toU64 x)
                     nextBytesConsumed = bytesConsumed + 1
                     if  (Num.shiftRightZfBy delta (8 * nextBytesConsumed) > 0) then
                         # still need to consume more data to fill delta.
-                        genInt (List.dropFirst b) next nextBytesConsumed
+                        genInt (List.dropLast b) next nextBytesConsumed
                     else
                         # consumed enough bytes to fill delta
-                        {value: next, state: (List.dropFirst b)}
+                        {value: next, state: (List.dropLast b)}
                 Err _ ->
                     {value: current, state: b}
         int = genInt data 0 0
