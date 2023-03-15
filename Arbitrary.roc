@@ -123,11 +123,12 @@ arbitraryListU8 = \u1 ->
     {value: seamlessSlice, state: u2} = ratio u1 1 2
 
     {value: size, state: u3} = arbitraryByteSize u2
-    {value: rawData, state: u4} =
+    {value: dataSlice, state: u4} =
         when bytes u3 size is
             Ok x -> x
             Err _ -> crash "byte range from arbitrary size must fit in data"
 
+    rawData = List.releaseExcessCapacity dataSlice
     # Allow the list to reserve an extra capacity up to the next power of 2 after the size.
     # For example, if size is 14, it can reserve upto a size of 32 (16 * 2).
     maxCap = 2 * (nextPowerOf2 (List.len rawData))
@@ -272,7 +273,7 @@ expect
 bytes : Unstructured, Nat -> Result {value: List U8, state: Unstructured} [NotEnoughData Nat]
 bytes = \@Unstructured data, requestedLen ->
     if List.len data >= requestedLen then
-        {before, others} = List.split data (requestedLen + 1)
+        {before, others} = List.split data requestedLen
         Ok {value: before, state: @Unstructured others}
     else
         Err (NotEnoughData (List.len data))
