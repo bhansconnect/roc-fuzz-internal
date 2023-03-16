@@ -11,9 +11,9 @@ main = \data ->
     str =
         when Str.fromUtf8 bytes is
             Ok s -> s
-            Err (BadUtf8 _ index) ->
-                # Even though this failed, we can stil parse the utf8 up to this index.
-                when Str.fromUtf8Range bytes { start: 0, count: index } is
+            Err (BadUtf8 _ goodSize) ->
+                # Even though this failed, we can stil parse the utf8 up to this size.
+                when Str.fromUtf8Range bytes { start: 0, count: goodSize } is
                     Ok s -> s
                     Err _ -> crash "This subset of the string should be valid for conversion to utf8"
 

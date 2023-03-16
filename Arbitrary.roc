@@ -41,15 +41,15 @@ arbitraryStr = \u1 ->
             Ok x -> x
             Err _ -> crash "byte range from arbitrary size must fit in data"
 
-    {value: rawStr, state: u4} =
+    {value: strSlice, state: u4} =
         when Str.fromUtf8 data is
             Ok value ->
                 {value, state: u3}
-            Err (BadUtf8 _ index) ->
-                # Even though this failed, we can stil parse the utf8 up to this index.
+            Err (BadUtf8 _ goodSize) ->
+                # Even though this failed, we can stil parse the utf8 up to this size.
                 # we didn't use all bytes, so reclaim some of them.
                 {value: altData, state: altU3} =
-                    when bytes u2 index is
+                    when bytes u2 goodSize is
                         Ok x -> x
                         Err _ -> crash "byte range from arbitrary size must fit in data"
                 when Str.fromUtf8 altData is
@@ -57,6 +57,7 @@ arbitraryStr = \u1 ->
                         {value, state: altU3}
                     Err _ -> crash "This subset of the string should be valid for conversion to utf8"
 
+    rawStr = Str.releaseExcessCapacity strSlice
     # Allow the string to reserve an extra capacity up to the next power of 2 after the size.
     # For example, if size is 14, it can reserve upto a size of 32 (16 * 2).
     maxCap =
