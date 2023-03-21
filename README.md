@@ -4,6 +4,8 @@ The goal of this repo is to enable fuzzing of roc applications.
 The main target is fuzzing parts of the standard library.
 It should hopefully be able to catch some bugs especially memory safety ones in the zig builtins.
 
+Note: On the sanitizers really only fully catch bugs on linux. If you are on mac, fuzzing is likely to be less productive.
+
 ## Dependencies
 
 This requires [cargo-fuzz](https://github.com/rust-fuzz/cargo-fuzz) which can be installed with: `cargo install cargo-fuzz`
@@ -19,6 +21,9 @@ cargo build --features sanitizers --bin roc
 ```
 
 Note: From this point forward, `roc` means the binary generate from the above command in `target/debug/roc`
+
+Note: If you have `roc` in your path, you should be able to just use the `run.sh` or `run-many.sh` scripts to do everything below automatically.
+That said, the script does require installing [gum](https://github.com/charmbracelet/gum).
 
 
 Next, we can use roc to build a fuzz target. They all live in the `roc_targets` directory.
