@@ -12,5 +12,4 @@ Bugs found in Roc via fuzzing:
  - Memory leak in Str.trim [roc#5075](https://github.com/roc-lang/roc/issues/5075)
  - Failure to decrement refcount when in Str/List.releaseExcessCapacity
  - Accessing past the end of the array in isValidUtf8
- - JSON string decoding doesn't handle [roc#5168](https://github.com/roc-lang/roc/issues/5168) 
- 
+ - JSON string decoding doesn't handle missing quotation [roc#5168](https://github.com/roc-lang/roc/issues/5168) 
