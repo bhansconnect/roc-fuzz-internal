@@ -18,7 +18,7 @@ main = \data ->
             # We decoded successfully.
             # This value should always be able to re-encode.
             encoded =
-                input
+                decoded
                 |> Encode.toBytes Json.toUtf8
 
             # We should be able to decode one more time an ensure the value is the same
