@@ -141,7 +141,7 @@ arbitraryListU8 = \u1 ->
                 List.reserve rawData ((Num.toNat cap) - List.len rawData)
             else
                 rawData)
-            |> \out -> if seamlessSlice then List.dropFirst out else out,
+            |> \out -> if seamlessSlice then List.dropFirst out 1 else out,
         state: u5,
     }
 
@@ -247,10 +247,10 @@ u64InInclusiveRange = \@Unstructured data, start, end ->
                     nextBytesConsumed = bytesConsumed + 1
                     if  (Num.shiftRightZfBy delta (8 * nextBytesConsumed) > 0) then
                         # still need to consume more data to fill delta.
-                        genInt (List.dropLast b) next nextBytesConsumed
+                        genInt (List.dropLast b 1) next nextBytesConsumed
                     else
                         # consumed enough bytes to fill delta
-                        {value: next, state: (List.dropLast b)}
+                        {value: next, state: (List.dropLast b 1)}
                 Err _ ->
                     {value: current, state: b}
         int = genInt data 0 0
