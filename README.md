@@ -40,9 +40,10 @@ That can be create with:
 ar rcs roc_targets/libroc-fuzz.a roc_targets/libroc-fuzz.o
 ```
 
-Now that we have the generated static library, we can compile and run the fuzz target:
+Now that we have the generated static library, we can compile and run the fuzz target (note that this requires the nightly toolchain):
+
 ```sh
-cargo fuzz run roc-fuzz
+cargo +nightly fuzz run roc-fuzz
 ```
 
 ## Other Notes

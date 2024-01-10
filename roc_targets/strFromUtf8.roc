@@ -8,6 +8,7 @@ main = \data ->
         new data
         |> arbitraryListU8
         |> .value
+
     str =
         when Str.fromUtf8 bytes is
             Ok s -> s
@@ -18,6 +19,12 @@ main = \data ->
                     Err _ -> crash "This subset of the string should be valid for conversion to utf8"
 
     if Str.toUtf8 str != List.takeFirst bytes (Str.countUtf8Bytes str) then
-        crash "Data is not the same after converting to and from Str"
+
+        output = {
+            msg : "Data is not the same after converting to and from Str",
+            bytes,
+        }
+
+        crash (Inspect.toStr output)
     else
         0

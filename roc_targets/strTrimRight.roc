@@ -15,7 +15,7 @@ main = \data ->
         else
             ""
 
-    out = Str.trimRight str1
+    out = Str.trimEnd str1
     if out == "" then
         # This is needed to keep the references to tmp alive
         Str.countUtf8Bytes tmp1
