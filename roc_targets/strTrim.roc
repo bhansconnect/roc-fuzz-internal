@@ -17,8 +17,8 @@ main = \data ->
 
     same = 
         str1
-        |> Str.trimLeft
-        |> Str.trimRight
+        |> Str.trimStart
+        |> Str.trimEnd
     out = Str.trim str1
     if out != same then
         crash "triming both left and right should be the same as a full trim, got \"\(out)\", wanted \"\(same)\""
