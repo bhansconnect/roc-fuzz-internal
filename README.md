@@ -1,4 +1,7 @@
-# Roc-fuzz
+# Roc-fuzz-internal
+
+Warning: This repro is being deprecated, but is mostly meant for fuzzing compiler implementations for memory leaks.
+
 
 The goal of this repo is to enable fuzzing of roc applications.
 The main target is fuzzing parts of the standard library.
